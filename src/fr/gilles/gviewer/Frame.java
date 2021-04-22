@@ -22,7 +22,6 @@ public class Frame extends JFrame{
 	private JSlider zoom;
 	private static final long serialVersionUID = 1L;
 	private Panel pane = new Panel();
-	private Diaporama diapo = new Diaporama(); 
 	public Frame() {
 		this.setTitle("GViewer");
 		this.setMinimumSize(new Dimension(500,400));
@@ -117,6 +116,10 @@ public class Frame extends JFrame{
 		file.setName("play");
 		file.addMouseListener(new ControlPanelListener());
 
+		JMenuItem streamfile = new JMenuItem("Open Online image");
+		streamfile.setName("playonline");
+		streamfile.addMouseListener(new ControlPanelListener());
+
 		JMenuItem quit = new JMenuItem("Quitter");
 		quit.setName("quit");
 		quit.addActionListener((event)->System.exit(0));
@@ -124,6 +127,7 @@ public class Frame extends JFrame{
 
 		//adding to component PopuMenu
 		this.File.getPopupMenu().add(file);
+		this.File.getPopupMenu().add(streamfile);
 		this.File.getPopupMenu().add(quit);
 
 		
@@ -137,6 +141,7 @@ public class Frame extends JFrame{
 
 		//*****************************************
 		this.Info.addMouseListener(new ControlPanelListener());
+
 
 	}
 	private void addControlPanelListener() {
@@ -152,7 +157,6 @@ public class Frame extends JFrame{
 	}
 	public void enablediapo(){
 		pane.enableDiaporame();
-		diapo.run();
 	}
 	public boolean Diapoisrun() {
 		return pane.isIsrun();
@@ -173,6 +177,9 @@ public class Frame extends JFrame{
 			JOptionPane.showMessageDialog(this,"Aucune image n'est en cours de visulaisation");
 	}
 
+	public void setOnlineImage(String s ){
+		pane.loadOnline(s);
+	}
 
 }
 

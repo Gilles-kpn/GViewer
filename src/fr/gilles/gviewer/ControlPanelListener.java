@@ -3,6 +3,8 @@ package fr.gilles.gviewer;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.*;
+import javax.swing.event.MenuKeyListener;
+import javax.swing.event.MenuListener;
 
 public class ControlPanelListener implements MouseListener {
 private String[] ext = {"jpeg","png","gif","jpg"};
@@ -27,17 +29,12 @@ private String[] ext = {"jpeg","png","gif","jpg"};
 				case "info" -> {
 					Main.f.showInfo();
 				}
+
 			}
 		}
 	}
 	private void open(){
-		if(Main.f.isViewing()) {
-			if(Main.f.Diapoisrun()) {
-				Main.f.StopDiapo();
-			}else {
-				Main.f.enablediapo();
-			}
-		}else {
+
 			JFileChooser f = new JFileChooser();
 			f.setDialogTitle("Choose image");
 			int returnal = f.showOpenDialog(Main.f);
@@ -55,7 +52,7 @@ private String[] ext = {"jpeg","png","gif","jpg"};
 
 				}
 			}
-		}
+
 	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -72,7 +69,15 @@ private String[] ext = {"jpeg","png","gif","jpg"};
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+		if (e.getSource().getClass().getName().equalsIgnoreCase("javax.swing.JMenuItem"))
+		switch (((JMenuItem)e.getSource()).getName()){
+			case "play"->{
+				open();
+			}
+			case "playonline"->{
+				openImageonline();
+			}
+		}
 	}
 
 	@Override
@@ -81,5 +86,8 @@ private String[] ext = {"jpeg","png","gif","jpg"};
 		
 	}
 
+	private void openImageonline(){
+		Main.f.setOnlineImage(JOptionPane.showInputDialog(Main.f,"Entrer l'url de l'image"));
+	}
 
 }

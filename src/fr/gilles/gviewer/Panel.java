@@ -16,6 +16,7 @@ public class Panel extends JPanel{
 	 * 
 	 */
 	private Image currentImg;
+	private boolean online = false;
 	private  String name ="null";
 	private static final long serialVersionUID = 1L;
 	private int ImageWidth =0,ImageHeight = 0;
@@ -59,16 +60,11 @@ public class Panel extends JPanel{
 		g2.setColor(Color.white);
 		g2.fillRect(0, 0, this.getWidth(), this.getHeight());
 		setNewDimension(this.getWidth(),this.getHeight());
-		if(!this.name.equalsIgnoreCase("null") ) {
+		if(this.currentImg != null) {
 			g2.setColor(Color.BLACK);
 			g2.drawImage(currentImg, (getWidth() / 2) - (ImageWidth / 2), (getHeight() / 2) - (ImageHeight / 2), ImageWidth, ImageHeight, this);
 		}else {
 			g2.setColor(Color.BLACK);
-			/*Font font = new Font("Arial", Font.BOLD, 20);
-			/*FontMetrics fm = g2.getFontMetrics();
-			int x = ((getWidth() / 2 - fm.stringWidth(new String("Aucune image Selectionnée"))) / 2);
-			int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
-			g2.setFont(font);*/
 			g2.drawString(new String("Aucune image Selectionnée"), getWidth()/3, this.getHeight()/2);
 		}
 		
@@ -79,7 +75,6 @@ public class Panel extends JPanel{
 		ImageHeight = new ImageIcon(s).getIconHeight();
 		this.currentImg = new ImageIcon(s).getImage();
 		isView =true;
-		imginfolder();
 		
 	}
 	private void setNewDimension(int x, int y) {
@@ -101,6 +96,7 @@ public class Panel extends JPanel{
 		this.repaint();
 		imginfolder(); 
 		this.name= s;
+		this.online = false;
 		
 	}
 	private void imginfolder() {
@@ -111,7 +107,6 @@ public class Panel extends JPanel{
 				for(String str : ext) {
 					if(fi.getAbsolutePath().substring(fi.getAbsolutePath().lastIndexOf(".")+1).equals(str)) {
 						cache.add(fi.getAbsolutePath());
-					
 					}
 				}
 				
@@ -167,8 +162,15 @@ public  void applyBack() {
 	}
 	public String[] getActivefileInfo(){
 		String fileextension = this.name.substring(this.name.lastIndexOf(".")+1);
-		String fileDir = this.name.substring(0,this.name.lastIndexOf("/"));
-		String filename = this.name.substring(this.name.lastIndexOf("/")+1,this.name.lastIndexOf("."));
+		String fileDir = this.name.substring(0,this.name.lastIndexOf(File.separator));
+		String filename = this.name.substring(this.name.lastIndexOf(File.separator)+1,this.name.lastIndexOf("."));
 		return new String[]{fileDir, filename, fileextension, String.valueOf(ImageWidth), String.valueOf(ImageHeight)};
+	}
+	public void loadOnline(String s){
+		if (!s.isEmpty() && !s.isBlank()){
+			loadImg(s);
+			repaint();
+			this.online = true;
+		}
 	}
 }
