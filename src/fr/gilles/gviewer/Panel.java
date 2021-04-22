@@ -1,51 +1,85 @@
 package fr.gilles.gviewer;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public class Panel extends JPanel{
 	/**
 	 * 
 	 */
 	private Image currentImg;
-	private  String name =null;
-	private int prev = 0;
+	private  String name ="null";
 	private static final long serialVersionUID = 1L;
+	private int ImageWidth =0,ImageHeight = 0;
 	private boolean isView = false,isrun = false;
-	private int origineX,origineY,longeur,hauteur,normalX,normalY;
+	private int origineX,origineY,longeur,hauteur;
 	private String[] ext = {"jpeg","png","gif","jpg"};
 	private   ArrayList<String> cache = new ArrayList<String>();
+
 	public Panel() {
 		currentImg = null;
 		isView =false;
 		origineX = 0;
-		origineY =0;
+		origineY = 0;
 		longeur = 0;
-		hauteur = 0;
+		hauteur = 0;//attends il reste la coloration tous le
+		this.setDropTarget(new DropTarget(){
+			public synchronized void drop(DropTargetDropEvent evt) {
+				try {
+					evt.acceptDrop(DnDConstants.ACTION_COPY);
+					java.util.List<File> droppedFiles = (java.util.List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+					for (File file : droppedFiles) {
+						if(file.isDirectory()){
+							loadImg(Objects.requireNonNull(file.listFiles())[1].getAbsolutePath());
+							repaint();
+						}else if(file.isFile()){
+							loadImg(file.getAbsolutePath());
+							repaint();
+
+						}
+
+					}
+
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
 	}
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setColor(Color.white);
-		
+		g2.fillRect(0, 0, this.getWidth(), this.getHeight());
 		setNewDimension(this.getWidth(),this.getHeight());
-		normalX =this.getWidth();
-		normalY = this.getHeight();
-		g2.fillRect(0, 0, normalX, normalY);
-		
-		g2.drawImage(currentImg, origineX,origineY,getLongeur(),getHauteur(), this);
+		if(!this.name.equalsIgnoreCase("null") ) {
+			g2.setColor(Color.BLACK);
+			g2.drawImage(currentImg, (getWidth() / 2) - (ImageWidth / 2), (getHeight() / 2) - (ImageHeight / 2), ImageWidth, ImageHeight, this);
+		}else {
+			g2.setColor(Color.BLACK);
+			/*Font font = new Font("Arial", Font.BOLD, 20);
+			/*FontMetrics fm = g2.getFontMetrics();
+			int x = ((getWidth() / 2 - fm.stringWidth(new String("Aucune image Selectionnée"))) / 2);
+			int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
+			g2.setFont(font);*/
+			g2.drawString(new String("Aucune image Selectionnée"), getWidth()/3, this.getHeight()/2);
+		}
 		
 	}
 	public void loadImg(String s) {
 		this.name = s;
+		ImageWidth= new ImageIcon(s).getIconWidth();
+		ImageHeight = new ImageIcon(s).getIconHeight();
 		this.currentImg = new ImageIcon(s).getImage();
 		isView =true;
+		imginfolder();
 		
 	}
 	private void setNewDimension(int x, int y) {
@@ -90,13 +124,12 @@ public class Panel extends JPanel{
 		
 	}
 	public void enableDiaporame() {
-		
-		
-		
+		this.isrun = true;
+	
 		
 	}
 	public void stopDiaporame() {
-		
+		this.isrun = false;
 	}
 	public  void applyNext() {
 		origineX =0;
@@ -129,15 +162,13 @@ public  void applyBack() {
 		this.isrun = isrun;
 	}
 	public void zoom(int x) {
-			
-			this.origineX = this.origineX - (x-prev)*2;
-			this.origineY = this.origineY - (x-prev)*2;
-			this.setNewDimension(this.getLongeur()+(x-prev)*2, this.getHauteur()+(x-prev)*2);
-			
+
 		
-		
-		this.repaint();
-		prev= x;
-		
+	}
+	public String[] getActivefileInfo(){
+		String fileextension = this.name.substring(this.name.lastIndexOf(".")+1);
+		String fileDir = this.name.substring(0,this.name.lastIndexOf("/"));
+		String filename = this.name.substring(this.name.lastIndexOf("/")+1,this.name.lastIndexOf("."));
+		return new String[]{fileDir, filename, fileextension, String.valueOf(ImageWidth), String.valueOf(ImageHeight)};
 	}
 }
